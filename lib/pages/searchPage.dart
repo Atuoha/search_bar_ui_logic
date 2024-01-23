@@ -149,47 +149,63 @@ class _SearchPageState extends State<SearchPage> {
             child: Material(
               color: Colors.white,
               elevation: 4,
-              child: Builder(builder: (context) {
-                if (filterSearchHistory.isEmpty && controller.query.isEmpty) {
-                  return const SizedBox(
-                    height: 56,
-                    width: double.infinity,
-                    child: Center(
-                      child: Text(
-                        'Start searching...',
-                        style: TextStyle(color: Colors.grey),
+              child: Builder(
+                builder: (context) {
+                  if (filterSearchHistory.isEmpty && controller.query.isEmpty) {
+                    return const SizedBox(
+                      height: 56,
+                      width: double.infinity,
+                      child: Center(
+                        child: Text(
+                          'Start searching...',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    );
+                  } else if (filterSearchHistory.isEmpty) {
+                    return ListTile(
+                      onTap: () {
+                        addSearch(searchTerm: controller.query);
+                        setState(() {
+                          searchTerm.text = controller.query;
+                        });
+                        controller.close();
+                      },
+                      leading: const Icon(
+                        CupertinoIcons.search,
+                        size: 18,
+                      ),
+                      title: Text(controller.query),
+                    );
+                  }
+
+                  return SizedBox(
+                    height: 200,
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: filterSearchHistory.length,
+                      itemBuilder: (context, index) => ListTile(
+                        onTap: () => setState(() {
+                          searchTerm.text = filterSearchHistory[index];
+                        }),
+                        leading: const Icon(
+                          CupertinoIcons.clock,
+                          size: 18,
+                        ),
+                        title: Text(filterSearchHistory[index]),
+                        trailing: GestureDetector(
+                          onTap: () => removeSearch(
+                              searchTerm: filterSearchHistory[index]),
+                          child: const Icon(
+                            CupertinoIcons.multiply,
+                            size: 14,
+                          ),
+                        ),
                       ),
                     ),
                   );
-                }
-
-                return SizedBox(
-                  height: 200,
-                  child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: filterSearchHistory.length,
-                      itemBuilder: (context, index) => GestureDetector(
-                            onTap: () => setState(() {
-                              searchTerm.text = filterSearchHistory[index];
-                            }),
-                            child: ListTile(
-                              leading: const Icon(
-                                CupertinoIcons.clock,
-                                size: 18,
-                              ),
-                              title: Text(filterSearchHistory[index]),
-                              trailing: GestureDetector(
-                                onTap: () => removeSearch(
-                                    searchTerm: filterSearchHistory[index]),
-                                child: const Icon(
-                                  CupertinoIcons.multiply,
-                                  size: 14,
-                                ),
-                              ),
-                            ),
-                          )),
-                );
-              }),
+                },
+              ),
             ),
           );
         },
