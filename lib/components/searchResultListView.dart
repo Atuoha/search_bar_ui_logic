@@ -30,13 +30,22 @@ class SearchResultListView extends StatelessWidget {
           )
         : SizedBox(
             height: MediaQuery.sizeOf(context).height,
-            child: ListView(
-              children: List.generate(
-                10,
-                (index) => ListTile(
-                  leading: const Icon(CupertinoIcons.clock,size: 18,),
-                  title: Text('number $index '),
-                  trailing: const Icon(CupertinoIcons.chevron_right,size: 14,),
+            child: Padding(
+              padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
+              child: ListView(
+                children: List.generate(
+                  10,
+                  (index) => ListTile(
+                    leading: const Icon(
+                      CupertinoIcons.clock,
+                      size: 18,
+                    ),
+                    title: Text('$searchTerm $index '),
+                    trailing: const Icon(
+                      CupertinoIcons.chevron_right,
+                      size: 14,
+                    ),
+                  ),
                 ),
               ),
             ),

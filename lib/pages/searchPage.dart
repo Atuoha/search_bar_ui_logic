@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:material_floating_search_bar_2/material_floating_search_bar_2.dart';
 import 'package:search_bar_ui_logic/components/searchResultListView.dart';
@@ -34,27 +35,35 @@ class _SearchPageState extends State<SearchPage> {
 
   void addSearch({required String searchTerm}) {
     if (searchHistory.contains(searchTerm)) {
-      searchHistory.remove(searchTerm);
-      searchHistory.add(searchTerm);
+      setState(() {
+        searchHistory.remove(searchTerm);
+        searchHistory.add(searchTerm);
+      });
+
       return;
     }
+    setState(() {
+      searchHistory.add(searchTerm);
+      if (searchHistory.length > historyMax) {
+        searchHistory.removeRange(0, searchHistory.length - historyMax);
+      }
 
-    searchHistory.add(searchTerm);
-    if (searchHistory.length > historyMax) {
-      searchHistory.removeRange(0, searchHistory.length - historyMax);
-    }
-
-    filterSearchHistory = filterSearchTerms(filter: '');
+      filterSearchHistory = filterSearchTerms(filter: '');
+    });
   }
 
   void removeSearch({required String searchTerm}) {
-    searchHistory.removeWhere((term) => term == searchTerm);
-    filterSearchHistory = filterSearchTerms(filter: '');
+    setState(() {
+      searchHistory.removeWhere((term) => term == searchTerm);
+      filterSearchHistory = filterSearchTerms(filter: '');
+    });
   }
 
   void putTermFirst(String searchTerm) {
-    removeSearch(searchTerm: searchTerm);
-    addSearch(searchTerm: searchTerm);
+    setState(() {
+      removeSearch(searchTerm: searchTerm);
+      addSearch(searchTerm: searchTerm);
+    });
   }
 
   @override
@@ -83,6 +92,12 @@ class _SearchPageState extends State<SearchPage> {
 
     return Scaffold(
       body: FloatingSearchBar(
+        // body
+        body: FloatingSearchBarScrollNotifier(
+          child: SearchResultListView(
+            searchTerm: searchTerm.text,
+          ),
+        ),
         hint: 'Search...',
         elevation: 0.5,
         iconColor: Colors.grey,
@@ -106,6 +121,7 @@ class _SearchPageState extends State<SearchPage> {
             addSearch(searchTerm: query);
             searchTerm.text = query;
           });
+          controller.close();
         },
         title: Text(
           searchTerm.text.isNotEmpty ? searchTerm.text : 'Search App',
@@ -125,10 +141,55 @@ class _SearchPageState extends State<SearchPage> {
           ),
         ],
         controller: controller,
+
+        // the suggestion box
         builder: (BuildContext context, Animation<double> transition) {
-          return FloatingSearchBarScrollNotifier(
-            child: SearchResultListView(
-              searchTerm: searchTerm.text,
+          return ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Material(
+              color: Colors.white,
+              elevation: 4,
+              child: Builder(builder: (context) {
+                if (filterSearchHistory.isEmpty && controller.query.isEmpty) {
+                  return const SizedBox(
+                    height: 56,
+                    width: double.infinity,
+                    child: Center(
+                      child: Text(
+                        'Start searching...',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                  );
+                }
+
+                return SizedBox(
+                  height: 200,
+                  child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: filterSearchHistory.length,
+                      itemBuilder: (context, index) => GestureDetector(
+                            onTap: () => setState(() {
+                              searchTerm.text = filterSearchHistory[index];
+                            }),
+                            child: ListTile(
+                              leading: const Icon(
+                                CupertinoIcons.clock,
+                                size: 18,
+                              ),
+                              title: Text(filterSearchHistory[index]),
+                              trailing: GestureDetector(
+                                onTap: () => removeSearch(
+                                    searchTerm: filterSearchHistory[index]),
+                                child: const Icon(
+                                  CupertinoIcons.multiply,
+                                  size: 14,
+                                ),
+                              ),
+                            ),
+                          )),
+                );
+              }),
             ),
           );
         },
