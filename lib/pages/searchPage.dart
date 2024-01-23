@@ -10,6 +10,7 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  final TextEditingController searchTerm = TextEditingController();
   late FloatingSearchBarController controller;
 
   static const historyMax = 5;
@@ -22,7 +23,6 @@ class _SearchPageState extends State<SearchPage> {
   ];
 
   List<String> filterSearchHistory = [];
-  String selectedText = '';
 
   List<String> filterSearchTerms({required String filter}) {
     return filter.isNotEmpty
@@ -61,12 +61,18 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     controller = FloatingSearchBarController();
     filterSearchHistory = filterSearchTerms(filter: '');
+
+    searchTerm.addListener(() {
+      setState(() {});
+    });
+
     super.initState();
   }
 
   @override
   void dispose() {
     controller.dispose();
+    searchTerm.dispose();
     super.dispose();
   }
 
@@ -91,8 +97,20 @@ class _SearchPageState extends State<SearchPage> {
         width: isPortrait ? 600 : 500,
         debounceDelay: const Duration(milliseconds: 500),
         onQueryChanged: (query) {
-          // Call your model, bloc, controller here.
+          setState(() {
+            filterSearchHistory = filterSearchTerms(filter: query);
+          });
         },
+        onSubmitted: (query) {
+          setState(() {
+            addSearch(searchTerm: query);
+            searchTerm.text = query;
+          });
+        },
+        title: Text(
+          searchTerm.text.isNotEmpty ? searchTerm.text : 'Search App',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
         transition: CircularFloatingSearchBarTransition(),
         actions: [
           FloatingSearchBarAction(
@@ -108,8 +126,10 @@ class _SearchPageState extends State<SearchPage> {
         ],
         controller: controller,
         builder: (BuildContext context, Animation<double> transition) {
-          return SearchResultListView(
-            searchTerm: selectedText,
+          return FloatingSearchBarScrollNotifier(
+            child: SearchResultListView(
+              searchTerm: searchTerm.text,
+            ),
           );
         },
       ),
