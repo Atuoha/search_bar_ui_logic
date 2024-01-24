@@ -179,30 +179,29 @@ class _SearchPageState extends State<SearchPage> {
                     );
                   }
 
-                  return SizedBox(
-                    height: 200,
-                    child: ListView.builder(
-                      padding: EdgeInsets.zero,
-                      itemCount: filterSearchHistory.length,
-                      itemBuilder: (context, index) => ListTile(
-                        onTap: () => setState(() {
-                          searchTerm.text = filterSearchHistory[index];
-                        }),
-                        leading: const Icon(
-                          CupertinoIcons.clock,
-                          size: 18,
-                        ),
-                        title: Text(filterSearchHistory[index]),
-                        trailing: GestureDetector(
-                          onTap: () => removeSearch(
-                              searchTerm: filterSearchHistory[index]),
-                          child: const Icon(
-                            CupertinoIcons.multiply,
-                            size: 14,
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: filterSearchHistory
+                        .map(
+                          (history) => ListTile(
+                            onTap: () => setState(() {
+                              searchTerm.text = history;
+                            }),
+                            leading: const Icon(
+                              CupertinoIcons.clock,
+                              size: 18,
+                            ),
+                            title: Text(history),
+                            trailing: GestureDetector(
+                              onTap: () => removeSearch(searchTerm: history),
+                              child: const Icon(
+                                CupertinoIcons.multiply,
+                                size: 14,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
+                        )
+                        .toList(),
                   );
                 },
               ),
