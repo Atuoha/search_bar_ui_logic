@@ -34,7 +34,7 @@ class SearchResultListView extends StatelessWidget {
               padding: EdgeInsets.only(top: MediaQuery.paddingOf(context).top),
               child: ListView(
                 children: List.generate(
-                  10,
+                  100,
                   (index) => ListTile(
                     leading: const Icon(
                       CupertinoIcons.clock,

@@ -184,9 +184,13 @@ class _SearchPageState extends State<SearchPage> {
                     children: filterSearchHistory
                         .map(
                           (history) => ListTile(
-                            onTap: () => setState(() {
-                              searchTerm.text = history;
-                            }),
+                            onTap: () {
+                              setState(() {
+                                searchTerm.text = history;
+                              });
+                              putTermFirst(history);
+                              controller.close();
+                            },
                             leading: const Icon(
                               CupertinoIcons.clock,
                               size: 18,
